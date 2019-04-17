@@ -24,7 +24,7 @@ import TestConfig = require('../../test.config');
 import resources = require('../../util/resources');
 import { LoginPage, ErrorPage, StringUtil } from '@alfresco/adf-testing';
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 import { FileModel } from '../../models/ACS/fileModel';
 import moment from 'moment-es6';
 
@@ -36,33 +36,30 @@ describe('Document List Component', () => {
     const errorPage = new ErrorPage();
     let privateSite;
     let uploadedFolder, uploadedFolderExtra;
-    const uploadActions = new UploadActions();
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
+    const uploadActions = new UploadActions(alfrescoJsApi);
     let acsUser = null;
     let testFileNode, pdfBFileNode;
-
-    beforeAll(() => {
-        this.alfrescoJsApi = new AlfrescoApi({
-            provider: 'ECM',
-            hostEcm: TestConfig.adf.url
-        });
-    });
 
     afterEach(async (done) => {
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         if (uploadedFolder) {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, uploadedFolder.entry.id);
+            await uploadActions.deleteFileOrFolder(uploadedFolder.entry.id);
             uploadedFolder = null;
         }
         if (uploadedFolderExtra) {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, uploadedFolderExtra.entry.id);
+            await uploadActions.deleteFileOrFolder(uploadedFolderExtra.entry.id);
             uploadedFolderExtra = null;
         }
         if (testFileNode) {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, testFileNode.entry.id);
+            await uploadActions.deleteFileOrFolder(testFileNode.entry.id);
             testFileNode = null;
         }
         if (pdfBFileNode) {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, pdfBFileNode.entry.id);
+            await uploadActions.deleteFileOrFolder(pdfBFileNode.entry.id);
             pdfBFileNode = null;
         }
         done();
@@ -82,7 +79,7 @@ describe('Document List Component', () => {
 
             privateSite = await this.alfrescoJsApi.core.sitesApi.createSite(privateSiteBody);
 
-            uploadedFolder = await uploadActions.createFolder(this.alfrescoJsApi, folderName, privateSite.entry.guid);
+            uploadedFolder = await uploadActions.createFolder(folderName, privateSite.entry.guid);
 
             done();
         });
@@ -154,9 +151,9 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
 
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            uploadedFolder = await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
-            pdfUploadedNode = await uploadActions.uploadFile(this.alfrescoJsApi, pdfFileModel.location, pdfFileModel.name, '-my-');
-            docxUploadedNode = await uploadActions.uploadFile(this.alfrescoJsApi, docxFileModel.location, docxFileModel.name, '-my-');
+            uploadedFolder = await uploadActions.createFolder(folderName, '-my-');
+            pdfUploadedNode = await uploadActions.uploadFile(pdfFileModel.location, pdfFileModel.name, '-my-');
+            docxUploadedNode = await uploadActions.uploadFile(docxFileModel.location, docxFileModel.name, '-my-');
             done();
         });
 
@@ -164,16 +161,16 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
             if (pdfUploadedNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, pdfUploadedNode.entry.id);
+                await uploadActions.deleteFileOrFolder(pdfUploadedNode.entry.id);
             }
             if (docxUploadedNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, docxUploadedNode.entry.id);
+                await uploadActions.deleteFileOrFolder(docxUploadedNode.entry.id);
             }
             if (timeAgoUploadedNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, timeAgoUploadedNode.entry.id);
+                await uploadActions.deleteFileOrFolder(timeAgoUploadedNode.entry.id);
             }
             if (mediumDateUploadedNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, mediumDateUploadedNode.entry.id);
+                await uploadActions.deleteFileOrFolder(mediumDateUploadedNode.entry.id);
             }
             done();
         });
@@ -201,7 +198,7 @@ describe('Document List Component', () => {
 
         it('[C279928] Should be able to display date with timeAgo', async (done) => {
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            timeAgoUploadedNode = await uploadActions.uploadFile(this.alfrescoJsApi, timeAgoFileModel.location, timeAgoFileModel.name, '-my-');
+            timeAgoUploadedNode = await uploadActions.uploadFile(timeAgoFileModel.location, timeAgoFileModel.name, '-my-');
             contentServicesPage.goToDocumentList();
             const dateValue = contentServicesPage.getColumnValueForRow(timeAgoFileModel.name, 'Created');
             expect(dateValue).toMatch(/(ago|few)/);
@@ -210,7 +207,7 @@ describe('Document List Component', () => {
 
         it('[C279929] Should be able to display the date with date type', async (done) => {
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            mediumDateUploadedNode = await uploadActions.uploadFile(this.alfrescoJsApi, mediumFileModel.location, mediumFileModel.name, '-my-');
+            mediumDateUploadedNode = await uploadActions.uploadFile(mediumFileModel.location, mediumFileModel.name, '-my-');
             const createdDate = moment(mediumDateUploadedNode.createdAt).format('ll');
             contentServicesPage.goToDocumentList();
             contentServicesPage.enableMediumTimeFormat();
@@ -248,9 +245,9 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.core.peopleApi.addPerson(user);
 
             await this.alfrescoJsApi.login(user.id, user.password);
-            fileANode = await uploadActions.uploadFile(this.alfrescoJsApi, fakeFileA.location, fakeFileA.name, '-my-');
-            fileBNode = await uploadActions.uploadFile(this.alfrescoJsApi, fakeFileB.location, fakeFileB.name, '-my-');
-            fileCNode = await uploadActions.uploadFile(this.alfrescoJsApi, fakeFileC.location, fakeFileC.name, '-my-');
+            fileANode = await uploadActions.uploadFile(fakeFileA.location, fakeFileA.name, '-my-');
+            fileBNode = await uploadActions.uploadFile(fakeFileB.location, fakeFileB.name, '-my-');
+            fileCNode = await uploadActions.uploadFile(fakeFileC.location, fakeFileC.name, '-my-');
 
             loginPage.loginToContentServicesUsingUserModel(user);
             contentServicesPage.goToDocumentList();
@@ -261,13 +258,13 @@ describe('Document List Component', () => {
         afterAll(async (done) => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
             if (fileANode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileANode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileANode.entry.id);
             }
             if (fileBNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileBNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileBNode.entry.id);
             }
             if (fileCNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileCNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileCNode.entry.id);
             }
             done();
         });
@@ -333,7 +330,7 @@ describe('Document List Component', () => {
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-        uploadedFolder = await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
+        uploadedFolder = await uploadActions.createFolder(folderName, '-my-');
         loginPage.loginToContentServicesUsingUserModel(acsUser);
         contentServicesPage.goToDocumentList();
         contentServicesPage.checkContentIsDisplayed(uploadedFolder.entry.name);
@@ -365,8 +362,8 @@ describe('Document List Component', () => {
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-        uploadedFolder = await uploadActions.createFolder(this.alfrescoJsApi, folderNameA, '-my-');
-        uploadedFolderExtra = await uploadActions.createFolder(this.alfrescoJsApi, folderNameB, '-my-');
+        uploadedFolder = await uploadActions.createFolder(folderNameA, '-my-');
+        uploadedFolderExtra = await uploadActions.createFolder(folderNameB, '-my-');
         loginPage.loginToContentServicesUsingUserModel(acsUser);
         contentServicesPage.goToDocumentList();
         contentServicesPage.checkContentIsDisplayed(folderNameA);
@@ -389,8 +386,8 @@ describe('Document List Component', () => {
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-        testFileNode = await uploadActions.uploadFile(this.alfrescoJsApi, testFileA.location, testFileA.name, '-my-');
-        pdfBFileNode = await uploadActions.uploadFile(this.alfrescoJsApi, testFileB.location, testFileB.name, '-my-');
+        testFileNode = await uploadActions.uploadFile(testFileA.location, testFileA.name, '-my-');
+        pdfBFileNode = await uploadActions.uploadFile(testFileB.location, testFileB.name, '-my-');
         loginPage.loginToContentServicesUsingUserModel(acsUser);
         contentServicesPage.goToDocumentList();
         contentServicesPage.checkContentIsDisplayed(testFileA.name);
@@ -414,7 +411,7 @@ describe('Document List Component', () => {
             let folder = null;
             for (let i = 0; i < 20; i++) {
                 folderName = `MEESEEKS_000${i}`;
-                folder = await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
+                folder = await uploadActions.createFolder(folderName, '-my-');
                 folderCreated.push(folder);
             }
             done();
@@ -422,7 +419,7 @@ describe('Document List Component', () => {
 
         afterAll(async (done) => {
             Promise.all(folderCreated.map((folder) =>
-                uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, folder.entry.id)
+                uploadActions.deleteFileOrFolder(folder.entry.id)
             )).then(() => {
                 done();
             });
@@ -463,10 +460,10 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
 
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            filePdfNode = await uploadActions.uploadFile(this.alfrescoJsApi, pdfFile.location, pdfFile.name, '-my-');
-            fileTestNode = await uploadActions.uploadFile(this.alfrescoJsApi, testFile.location, testFile.name, '-my-');
-            fileDocxNode = await uploadActions.uploadFile(this.alfrescoJsApi, docxFile.location, docxFile.name, '-my-');
-            folderNode = await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
+            filePdfNode = await uploadActions.uploadFile(pdfFile.location, pdfFile.name, '-my-');
+            fileTestNode = await uploadActions.uploadFile(testFile.location, testFile.name, '-my-');
+            fileDocxNode = await uploadActions.uploadFile(docxFile.location, docxFile.name, '-my-');
+            folderNode = await uploadActions.createFolder(folderName, '-my-');
 
             done();
         });
@@ -474,16 +471,16 @@ describe('Document List Component', () => {
         afterAll(async (done) => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
             if (filePdfNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, filePdfNode.entry.id);
+                await uploadActions.deleteFileOrFolder(filePdfNode.entry.id);
             }
             if (fileTestNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileTestNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileTestNode.entry.id);
             }
             if (fileDocxNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileDocxNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileDocxNode.entry.id);
             }
             if (folderNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, folderNode.entry.id);
+                await uploadActions.deleteFileOrFolder(folderNode.entry.id);
             }
             done();
         });
@@ -568,11 +565,11 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
             funnyUser = await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            filePdfNode = await uploadActions.uploadFile(this.alfrescoJsApi, pdfFile.location, pdfFile.name, '-my-');
-            fileTestNode = await uploadActions.uploadFile(this.alfrescoJsApi, testFile.location, testFile.name, '-my-');
-            fileDocxNode = await uploadActions.uploadFile(this.alfrescoJsApi, docxFile.location, docxFile.name, '-my-');
-            folderNode = await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
-            filePDFSubNode = await uploadActions.uploadFile(this.alfrescoJsApi, pdfFile.location, pdfFile.name, folderNode.entry.id);
+            filePdfNode = await uploadActions.uploadFile(pdfFile.location, pdfFile.name, '-my-');
+            fileTestNode = await uploadActions.uploadFile(testFile.location, testFile.name, '-my-');
+            fileDocxNode = await uploadActions.uploadFile(docxFile.location, docxFile.name, '-my-');
+            folderNode = await uploadActions.createFolder(folderName, '-my-');
+            filePDFSubNode = await uploadActions.uploadFile(pdfFile.location, pdfFile.name, folderNode.entry.id);
 
             done();
         });
@@ -665,19 +662,19 @@ describe('Document List Component', () => {
         afterAll(async (done) => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
             if (filePdfNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, filePdfNode.entry.id);
+                await uploadActions.deleteFileOrFolder(filePdfNode.entry.id);
             }
             if (fileTestNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileTestNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileTestNode.entry.id);
             }
             if (fileDocxNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, fileDocxNode.entry.id);
+                await uploadActions.deleteFileOrFolder(fileDocxNode.entry.id);
             }
             if (filePDFSubNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, filePDFSubNode.entry.id);
+                await uploadActions.deleteFileOrFolder(filePDFSubNode.entry.id);
             }
             if (folderNode) {
-                await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, folderNode.entry.id);
+                await uploadActions.deleteFileOrFolder(folderNode.entry.id);
             }
             done();
         });
@@ -698,7 +695,7 @@ describe('Document List Component', () => {
             await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
             await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
             await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-            file = await uploadActions.uploadFile(this.alfrescoJsApi, file0BytesModel.location, file0BytesModel.name, '-my-');
+            file = await uploadActions.uploadFile(file0BytesModel.location, file0BytesModel.name, '-my-');
 
             loginPage.loginToContentServicesUsingUserModel(acsUser);
             contentServicesPage.goToDocumentList()

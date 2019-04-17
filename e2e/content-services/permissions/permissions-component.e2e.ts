@@ -23,7 +23,7 @@ import TestConfig = require('../../test.config');
 import resources = require('../../util/resources');
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
 import { FileModel } from '../../models/ACS/fileModel';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 import { StringUtil } from '@alfresco/adf-testing';
 import { browser, protractor } from 'protractor';
 import { FolderModel } from '../../models/ACS/folderModel';
@@ -35,11 +35,15 @@ import { UploadDialog } from '../../pages/adf/dialog/uploadDialog';
 
 describe('Permissions Component', function () {
 
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
     const loginPage = new LoginPage();
     const contentServicesPage = new ContentServicesPage();
     const permissionsPage = new PermissionsPage();
     const navigationBarPage = new NavigationBarPage();
-    const uploadActions = new UploadActions();
+    const uploadActions = new UploadActions(alfrescoJsApi);
 
     const contentList = contentServicesPage.getDocumentList();
 
@@ -68,11 +72,6 @@ describe('Permissions Component', function () {
         displayName: StringUtil.generateRandomString()
     };
 
-    const alfrescoJsApi = new AlfrescoApi({
-        provider: 'ECM',
-        hostEcm: TestConfig.adf.url
-    });
-
     const roleConsumerFolderModel = new FolderModel({ 'name': 'roleConsumer' + StringUtil.generateRandomString() });
     const roleCoordinatorFolderModel = new FolderModel({ 'name': 'roleCoordinator' + StringUtil.generateRandomString() });
     const roleCollaboratorFolderModel = new FolderModel({ 'name': 'roleCollaborator' + StringUtil.generateRandomString() });
@@ -97,11 +96,11 @@ describe('Permissions Component', function () {
 
         await alfrescoJsApi.login(fileOwnerUser.id, fileOwnerUser.password);
 
-        roleConsumerFolder = await uploadActions.createFolder(alfrescoJsApi, roleConsumerFolderModel.name, '-my-');
-        roleCoordinatorFolder = await uploadActions.createFolder(alfrescoJsApi, roleCoordinatorFolderModel.name, '-my-');
-        roleContributorFolder = await uploadActions.createFolder(alfrescoJsApi, roleContributorFolderModel.name, '-my-');
-        roleCollaboratorFolder = await uploadActions.createFolder(alfrescoJsApi, roleCollaboratorFolderModel.name, '-my-');
-        roleEditorFolder = await uploadActions.createFolder(alfrescoJsApi, roleEditorFolderModel.name, '-my-');
+        roleConsumerFolder = await uploadActions.createFolder(roleConsumerFolderModel.name, '-my-');
+        roleCoordinatorFolder = await uploadActions.createFolder(roleCoordinatorFolderModel.name, '-my-');
+        roleContributorFolder = await uploadActions.createFolder(roleContributorFolderModel.name, '-my-');
+        roleCollaboratorFolder = await uploadActions.createFolder(roleCollaboratorFolderModel.name, '-my-');
+        roleEditorFolder = await uploadActions.createFolder(roleEditorFolderModel.name, '-my-');
 
         folders = [roleConsumerFolder, roleContributorFolder, roleCoordinatorFolder, roleCollaboratorFolder, roleEditorFolder];
 
@@ -163,11 +162,11 @@ describe('Permissions Component', function () {
                 }
             });
 
-        await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, 'RoleConsumer' + fileModel.name, roleConsumerFolder.entry.id);
-        await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, 'RoleContributor' + fileModel.name, roleContributorFolder.entry.id);
-        await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, 'RoleCoordinator' + fileModel.name, roleCoordinatorFolder.entry.id);
-        await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, 'RoleCollaborator' + fileModel.name, roleCollaboratorFolder.entry.id);
-        await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, 'RoleEditor' + fileModel.name, roleEditorFolder.entry.id);
+        await uploadActions.uploadFile(fileModel.location, 'RoleConsumer' + fileModel.name, roleConsumerFolder.entry.id);
+        await uploadActions.uploadFile(fileModel.location, 'RoleContributor' + fileModel.name, roleContributorFolder.entry.id);
+        await uploadActions.uploadFile(fileModel.location, 'RoleCoordinator' + fileModel.name, roleCoordinatorFolder.entry.id);
+        await uploadActions.uploadFile(fileModel.location, 'RoleCollaborator' + fileModel.name, roleCollaboratorFolder.entry.id);
+        await uploadActions.uploadFile(fileModel.location, 'RoleEditor' + fileModel.name, roleEditorFolder.entry.id);
 
         done();
     });
@@ -175,7 +174,7 @@ describe('Permissions Component', function () {
     afterAll(async (done) => {
         await alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         await folders.forEach(function (folder) {
-            uploadActions.deleteFilesOrFolder(alfrescoJsApi, folder.entry.id);
+            uploadActions.deleteFileOrFolder(folder.entry.id);
 
         });
 
@@ -188,7 +187,7 @@ describe('Permissions Component', function () {
 
             await alfrescoJsApi.login(fileOwnerUser.id, fileOwnerUser.password);
 
-            file = await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, fileModel.name, '-my-');
+            file = await uploadActions.uploadFile(fileModel.location, fileModel.name, '-my-');
 
             loginPage.loginToContentServicesUsingUserModel(fileOwnerUser);
 
@@ -207,7 +206,7 @@ describe('Permissions Component', function () {
 
         afterEach(async (done) => {
 
-            await uploadActions.deleteFilesOrFolder(alfrescoJsApi, file.entry.id);
+            await uploadActions.deleteFileOrFolder(file.entry.id);
 
             done();
 
@@ -301,7 +300,7 @@ describe('Permissions Component', function () {
 
             await alfrescoJsApi.login(fileOwnerUser.id, fileOwnerUser.password);
 
-            file = await uploadActions.uploadFile(alfrescoJsApi, fileModel.location, fileModel.name, '-my-');
+            file = await uploadActions.uploadFile(fileModel.location, fileModel.name, '-my-');
 
             loginPage.loginToContentServicesUsingUserModel(fileOwnerUser);
 
@@ -335,7 +334,7 @@ describe('Permissions Component', function () {
 
         afterEach(async (done) => {
 
-            await uploadActions.deleteFilesOrFolder(alfrescoJsApi, file.entry.id);
+            await uploadActions.deleteFileOrFolder(file.entry.id);
 
             done();
 

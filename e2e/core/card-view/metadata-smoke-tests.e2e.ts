@@ -30,7 +30,7 @@ import resources = require('../../util/resources');
 import dateFormat = require('dateformat');
 
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 import { NavigationBarPage } from '../../pages/adf/navigationBarPage';
 import { setConfigField } from '../../proxy';
 
@@ -64,16 +64,16 @@ describe('Metadata component', () => {
         'location': resources.Files.ADF_DOCUMENTS.PNG.file_location
     });
 
-    const uploadActions = new UploadActions();
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
+
+    const uploadActions = new UploadActions(alfrescoJsApi);
 
     let fileUrl;
 
     beforeAll(async (done) => {
-
-        this.alfrescoJsApi = new AlfrescoApi({
-            provider: 'ECM',
-            hostEcm: TestConfig.adf.url
-        });
 
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
@@ -81,7 +81,7 @@ describe('Metadata component', () => {
 
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
 
-        const pngUploadedFile = await uploadActions.uploadFile(this.alfrescoJsApi, pngFileModel.location, pngFileModel.name, '-my-');
+        const pngUploadedFile = await uploadActions.uploadFile(pngFileModel.location, pngFileModel.name, '-my-');
 
         Object.assign(pngFileModel, pngUploadedFile.entry);
 
@@ -295,7 +295,7 @@ describe('Metadata component', () => {
     describe('Folder metadata', () => {
 
         beforeAll(async (done) => {
-            await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
+            await uploadActions.createFolder(folderName, '-my-');
             done();
         });
 

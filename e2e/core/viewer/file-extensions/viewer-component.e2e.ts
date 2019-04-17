@@ -33,14 +33,17 @@ import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
 import { UploadActions } from '@alfresco/adf-testing';
 import { NavigationBarPage } from '../../..//pages/adf/navigationBarPage';
 
-
 describe('Viewer', () => {
 
     const viewerPage = new ViewerPage();
     const navigationBarPage = new NavigationBarPage();
     const loginPage = new LoginPage();
     const contentServicesPage = new ContentServicesPage();
-    const uploadActions = new UploadActions();
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
+    const uploadActions = new UploadActions(alfrescoJsApi);
     let site;
     const acsUser = new AcsUserModel();
     let pngFileUploaded;
@@ -57,11 +60,6 @@ describe('Viewer', () => {
 
     beforeAll(async (done) => {
 
-        this.alfrescoJsApi = new AlfrescoApi({
-            provider: 'ECM',
-            hostEcm: TestConfig.adf.url
-        });
-
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
 
@@ -77,7 +75,7 @@ describe('Viewer', () => {
 
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
 
-        pngFileUploaded = await uploadActions.uploadFile(this.alfrescoJsApi, pngFileInfo.location, pngFileInfo.name, site.entry.guid);
+        pngFileUploaded = await uploadActions.uploadFile(pngFileInfo.location, pngFileInfo.name, site.entry.guid);
         done();
     });
 
@@ -100,9 +98,9 @@ describe('Viewer', () => {
         let otherFolderUploaded;
 
         beforeAll(async (done) => {
-            otherFolderUploaded = await uploadActions.createFolder(this.alfrescoJsApi, otherFolderInfo.name, '-my-');
+            otherFolderUploaded = await uploadActions.createFolder(otherFolderInfo.name, '-my-');
 
-            uploadedOthers = await uploadActions.uploadFolder(this.alfrescoJsApi, otherFolderInfo.location, otherFolderUploaded.entry.id);
+            uploadedOthers = await uploadActions.uploadFolder(otherFolderInfo.location, otherFolderUploaded.entry.id);
 
             loginPage.loginToContentServicesUsingUserModel(acsUser);
             contentServicesPage.goToDocumentList();
@@ -111,7 +109,7 @@ describe('Viewer', () => {
         });
 
         afterAll(async (done) => {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, otherFolderUploaded.entry.id);
+            await uploadActions.deleteFileOrFolder(otherFolderUploaded.entry.id);
             done();
         });
 

@@ -26,7 +26,7 @@ import { SearchFiltersPage } from '../../pages/adf/searchFiltersPage';
 import TestConfig = require('../../test.config');
 
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 import { AcsUserModel } from '../../models/ACS/acsUserModel';
 import { FileModel } from '../../models/ACS/fileModel';
 import { browser } from 'protractor';
@@ -52,14 +52,14 @@ describe('Search Number Range Filter', () => {
     });
 
     let file2Bytes;
-    const uploadActions = new UploadActions();
+
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
+    const uploadActions = new UploadActions(alfrescoJsApi);
 
     beforeAll(async (done) => {
-
-        this.alfrescoJsApi = new AlfrescoApi({
-            provider: 'ECM',
-            hostEcm: TestConfig.adf.url
-        });
 
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
@@ -67,7 +67,7 @@ describe('Search Number Range Filter', () => {
 
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
 
-        file2Bytes = await uploadActions.uploadFile(this.alfrescoJsApi, file2BytesModel.location, file2BytesModel.name, '-my-');
+        file2Bytes = await uploadActions.uploadFile(file2BytesModel.location, file2BytesModel.name, '-my-');
         await browser.driver.sleep(15000);
 
         loginPage.loginToContentServices(acsUser.id, acsUser.password);
@@ -81,7 +81,7 @@ describe('Search Number Range Filter', () => {
 
     afterAll(async (done) => {
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
-        await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, file2Bytes.entry.id);
+        await uploadActions.deleteFileOrFolder(file2Bytes.entry.id);
         done();
     });
 

@@ -28,7 +28,7 @@ import TestConfig = require('../test.config');
 import { Util } from '../util/util';
 
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 
 describe('Enable infinite scrolling', () => {
 
@@ -55,12 +55,11 @@ describe('Enable infinite scrolling', () => {
     };
 
     beforeAll(async (done) => {
-        const uploadActions = new UploadActions();
-
-        this.alfrescoJsApi = new AlfrescoApi({
+        const alfrescoJsApi = new AlfrescoApi({
             provider: 'ECM',
             hostEcm: TestConfig.adf.url
         });
+        const uploadActions = new UploadActions(alfrescoJsApi);
 
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
@@ -73,14 +72,14 @@ describe('Enable infinite scrolling', () => {
 
         await this.alfrescoJsApi.login(acsUser.id, acsUser.password);
 
-        const folderUploadedModel = await uploadActions.createFolder(this.alfrescoJsApi, folderModel.name, '-my-');
-        emptyFolderModel = await uploadActions.createFolder(this.alfrescoJsApi, 'emptyFolder', '-my-');
+        const folderUploadedModel = await uploadActions.createFolder(folderModel.name, '-my-');
+        emptyFolderModel = await uploadActions.createFolder('emptyFolder', '-my-');
 
-        await uploadActions.createEmptyFiles(this.alfrescoJsApi, fileNames, folderUploadedModel.entry.id);
+        await uploadActions.createEmptyFiles(fileNames, folderUploadedModel.entry.id);
 
-        deleteUploaded = await uploadActions.createFolder(this.alfrescoJsApi, 'deleteFolder', '-my-');
+        deleteUploaded = await uploadActions.createFolder('deleteFolder', '-my-');
 
-        await uploadActions.createEmptyFiles(this.alfrescoJsApi, deleteFileNames, deleteUploaded.entry.id);
+        await uploadActions.createEmptyFiles(deleteFileNames, deleteUploaded.entry.id);
 
         done();
     });

@@ -32,7 +32,7 @@ import { StringUtil } from '@alfresco/adf-testing';
 import { NavigationBarPage } from '../../pages/adf/navigationBarPage';
 
 import { AlfrescoApiCompatibility as AlfrescoApi } from '@alfresco/js-api';
-import { UploadActions } from '@alfresco/testing';
+import { UploadActions } from '@alfresco/adf-testing';
 import { DropActions } from '../../actions/drop.actions';
 
 describe('Upload component', () => {
@@ -42,7 +42,11 @@ describe('Upload component', () => {
     const uploadToggles = new UploadToggles();
     const loginPage = new LoginPage();
     const acsUser = new AcsUserModel();
-    const uploadActions = new UploadActions();
+    const alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: TestConfig.adf.url
+    });
+    const uploadActions = new UploadActions(alfrescoJsApi);
     const navigationBarPage = new NavigationBarPage();
 
     const firstPdfFileModel = new FileModel({
@@ -81,11 +85,6 @@ describe('Upload component', () => {
     const uploadedFileInFolderTwo = new FileModel({ 'name': resources.Files.ADF_DOCUMENTS.FILE_INSIDE_FOLDER_TWO.file_name });
 
     beforeAll(async (done) => {
-        this.alfrescoJsApi = new AlfrescoApi({
-            provider: 'ECM',
-            hostEcm: TestConfig.adf.url
-        });
-
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
@@ -96,7 +95,7 @@ describe('Upload component', () => {
 
         contentServicesPage.goToDocumentList();
 
-        const pdfUploadedFile = await uploadActions.uploadFile(this.alfrescoJsApi, firstPdfFileModel.location, firstPdfFileModel.name, '-my-');
+        const pdfUploadedFile = await uploadActions.uploadFile(firstPdfFileModel.location, firstPdfFileModel.name, '-my-');
 
         Object.assign(firstPdfFileModel, pdfUploadedFile.entry);
 
@@ -117,7 +116,7 @@ describe('Upload component', () => {
 
             contentServicesPage.getElementsDisplayedId().then((nodeList) => {
                 nodeList.forEach(async (currentNode) => {
-                    await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, currentNode);
+                    await uploadActions.deleteFileOrFolder(currentNode);
                 });
             });
 
@@ -368,14 +367,14 @@ describe('Upload component', () => {
         const folderName = StringUtil.generateRandomString(8);
 
         const folderUploadedModel = await browser.controlFlow().execute(async () => {
-            return await uploadActions.createFolder(this.alfrescoJsApi, folderName, '-my-');
+            return await uploadActions.createFolder(folderName, '-my-');
         });
 
         navigationBarPage.openContentServicesFolder(folderUploadedModel.entry.id);
         contentServicesPage.checkUploadButton();
 
         browser.controlFlow().execute(async () => {
-            await uploadActions.deleteFilesOrFolder(this.alfrescoJsApi, folderUploadedModel.entry.id);
+            await uploadActions.deleteFileOrFolder(folderUploadedModel.entry.id);
         });
 
         contentServicesPage.uploadFile(pdfFileModel.location);
