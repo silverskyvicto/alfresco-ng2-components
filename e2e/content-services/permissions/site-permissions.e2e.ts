@@ -98,9 +98,9 @@ describe('Permissions Component', function () {
 
         folderName = `MEESEEKS_${StringUtil.generateRandomString(5)}`;
 
-        const publicSiteBody = {visibility: 'PUBLIC', title: publicSiteName};
+        const publicSiteBody = { visibility: 'PUBLIC', title: publicSiteName };
 
-        const privateSiteBody = {visibility: 'PRIVATE', title: privateSiteName};
+        const privateSiteBody = { visibility: 'PRIVATE', title: privateSiteName };
 
         publicSite = await alfrescoJsApi.core.sitesApi.createSite(publicSiteBody);
         privateSite = await alfrescoJsApi.core.sitesApi.createSite(privateSiteBody);
@@ -135,7 +135,6 @@ describe('Permissions Component', function () {
         privateSiteFile = await uploadActions.uploadFile(fileModel.location, 'privateSite' + fileModel.name, privateSite.entry.guid);
 
         await alfrescoJsApi.core.nodesApi.updateNode(privateSiteFile.entry.id,
-
             {
                 permissions: {
                     locallySet: [{
@@ -149,7 +148,6 @@ describe('Permissions Component', function () {
         await uploadActions.uploadFile(fileModel.location, 'Site' + fileModel.name, siteFolder.entry.id);
 
         done();
-
     });
 
     afterAll(async (done) => {
@@ -181,6 +179,9 @@ describe('Permissions Component', function () {
             permissionsPage.clickAddPermissionButton();
             permissionsPage.checkAddPermissionDialogIsDisplayed();
             permissionsPage.checkSearchUserInputIsDisplayed();
+
+            browser.sleep(7000);
+
             permissionsPage.searchUserOrGroup(consumerUser.getId());
             permissionsPage.clickUserOrGroup(consumerUser.getFirstName());
             permissionsPage.checkUserOrGroupIsAdded(consumerUser.getId());

@@ -95,7 +95,7 @@ describe('Search component - Search Page', () => {
 
         await uploadActions.createEmptyFiles(adminFileNames, newFolderModelUploaded.entry.id);
 
-        browser.driver.sleep(15000);
+        browser.driver.sleep(10000);
 
         loginPage.loginToContentServicesUsingUserModel(acsUser);
 
