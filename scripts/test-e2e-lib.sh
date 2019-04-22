@@ -135,7 +135,7 @@ while [[ $1 == -* ]]; do
       -dev|--dev)  set_development; shift;;
       -s|--spec)  set_test $2; shift 2;;
       -ud|--use-dist)  lite_server; shift;;
-      -save|--save)   set_save_screenshot; shift;;
+      -save)   set_save_screenshot; shift;;
       -proxy|--proxy)  set_proxy $2; shift 2;;
       -s|--seleniumServer) set_selenium $2; shift 2;;
       -host|--host)  set_host $2; shift 2;;
