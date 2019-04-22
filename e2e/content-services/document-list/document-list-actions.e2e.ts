@@ -28,7 +28,6 @@ import { FileModel } from '../../models/ACS/fileModel';
 import { StringUtil } from '@alfresco/adf-testing';
 import { Util } from '../../util/util';
 import { ContentNodeSelectorDialogPage } from '@alfresco/adf-testing';
-import { BreadCrumbDropdownPage } from '../../pages/adf/content-services/breadcrumb/breadCrumbDropdownPage';
 import { FolderModel } from '../../models/ACS/folderModel';
 import { BreadCrumbPage } from '../../pages/adf/content-services/breadcrumb/breadCrumbPage';
 import { InfinitePaginationPage } from '../../pages/adf/core/infinitePaginationPage';
@@ -41,7 +40,6 @@ describe('Document List Component - Actions', () => {
     const contentListPage = contentServicesPage.getDocumentList();
     const contentNodeSelector = new ContentNodeSelectorDialogPage();
     const paginationPage = new PaginationPage();
-    const breadCrumbDropdownPage = new BreadCrumbDropdownPage();
     const breadCrumbPage = new BreadCrumbPage();
     const uploadActions = new UploadActions();
     const infinitePaginationPage = new InfinitePaginationPage(element(by.css('adf-content-node-selector')));
@@ -274,7 +272,7 @@ describe('Document List Component - Actions', () => {
             expect(contentNodeSelector.getDialogHeaderText()).toBe('Move \'' + 'A' + folderModel1.name + '\' to...');
             contentNodeSelector.checkSearchInputIsDisplayed();
             expect(contentNodeSelector.getSearchLabel()).toBe('Search');
-            contentNodeSelector.checkSelectedSiteIsDisplayed('My files');
+            contentNodeSelector.sitesDropdownPage().checkSelectedSiteIsDisplayed('My files');
             contentNodeSelector.checkCancelButtonIsDisplayed();
             contentNodeSelector.checkMoveCopyButtonIsDisplayed();
             expect(contentNodeSelector.getMoveCopyButtonText()).toBe('MOVE');
@@ -304,9 +302,9 @@ describe('Document List Component - Actions', () => {
             contentServicesPage.checkContextActionIsVisible('Move');
             contentServicesPage.pressContextMenuActionNamed('Move');
             contentNodeSelector.checkDialogIsDisplayed();
-            breadCrumbDropdownPage.clickParentFolder();
-            breadCrumbDropdownPage.checkBreadCrumbDropdownIsDisplayed();
-            breadCrumbDropdownPage.choosePath(contentServicesUser.id);
+            contentNodeSelector.breadCrumbDropdownPage().clickParentFolder();
+            contentNodeSelector.breadCrumbDropdownPage().checkBreadCrumbDropdownIsDisplayed();
+            contentNodeSelector.breadCrumbDropdownPage().choosePath(contentServicesUser.id);
             contentNodeSelector.clickMoveCopyButton();
             contentServicesPage.checkContentIsNotDisplayed('A' + folderModel1.name);
 
@@ -327,7 +325,7 @@ describe('Document List Component - Actions', () => {
             expect(contentNodeSelector.getDialogHeaderText()).toBe('Copy \'' + 'A' + folderModel1.name + '\' to...');
             contentNodeSelector.checkSearchInputIsDisplayed();
             expect(contentNodeSelector.getSearchLabel()).toBe('Search');
-            contentNodeSelector.checkSelectedSiteIsDisplayed('My files');
+            contentNodeSelector.sitesDropdownPage().checkSelectedSiteIsDisplayed('My files');
             contentNodeSelector.checkCancelButtonIsDisplayed();
             contentNodeSelector.checkMoveCopyButtonIsDisplayed();
             expect(contentNodeSelector.getMoveCopyButtonText()).toBe('COPY');

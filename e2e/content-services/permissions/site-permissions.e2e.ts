@@ -168,7 +168,7 @@ describe('Permissions Component', function () {
 
             contentServicesPage.checkContentIsDisplayed(folderName);
 
-            contentServicesPage.checkSelectedSiteIsDisplayed('My files');
+            contentServicesPage.sitesDropdownPage().checkSelectedSiteIsDisplayed('My files');
 
             contentList.rightClickOnRow(folderName);
 

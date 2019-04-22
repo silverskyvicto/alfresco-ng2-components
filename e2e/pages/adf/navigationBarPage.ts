@@ -54,6 +54,7 @@ export class NavigationBarPage {
     peopleGroupCloudButton = element(by.css('button[data-automation-id="People/Group Cloud"]'));
     aboutButton = element(by.css('a[data-automation-id="About"]'));
     tagButton = element.all(by.css('a[data-automation-id="Tag"]'));
+    nodeSelectorButton = element(by.css('a[data-automation-id="Node Selector"]'));
 
     clickTagButton() {
         BrowserVisibility.waitUntilElementIsVisible(this.tagButton);
@@ -252,5 +253,10 @@ export class NavigationBarPage {
     scrollTo(el: ElementFinder) {
         browser.executeScript(`return arguments[0].scrollTop = arguments[1].offsetTop`, this.linkListContainer.getWebElement(), el.getWebElement());
         return this;
+    }
+
+    clickNodeSelectorButton() {
+        BrowserVisibility.waitUntilElementIsVisible(this.nodeSelectorButton);
+        this.nodeSelectorButton.click();
     }
 }
