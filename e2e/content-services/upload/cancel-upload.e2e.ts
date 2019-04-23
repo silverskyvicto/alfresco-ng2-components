@@ -33,7 +33,7 @@ import { UploadActions } from '@alfresco/adf-testing';
 
 describe('Upload component', () => {
 
-    const alfrescoJsApi = new AlfrescoApi({
+    this.alfrescoJsApi = new AlfrescoApi({
         provider: 'ECM',
         hostEcm: TestConfig.adf.url
     });
@@ -42,7 +42,7 @@ describe('Upload component', () => {
     const uploadToggles = new UploadToggles();
     const loginPage = new LoginPage();
     const acsUser = new AcsUserModel();
-    const uploadActions = new UploadActions(alfrescoJsApi);
+    const uploadActions = new UploadActions(this.alfrescoJsApi);
 
     const firstPdfFileModel = new FileModel({
         'name': resources.Files.ADF_DOCUMENTS.PDF_B.file_name,

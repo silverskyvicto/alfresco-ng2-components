@@ -40,11 +40,11 @@ describe('Search Checklist Component', () => {
     const searchResults = new SearchResultsPage();
 
     const acsUser = new AcsUserModel();
-    const alfrescoJsApi = new AlfrescoApi({
+    this.alfrescoJsApi = new AlfrescoApi({
         provider: 'ECM',
         hostEcm: TestConfig.adf.url
     });
-    const uploadActions = new UploadActions(alfrescoJsApi);
+    const uploadActions = new UploadActions(this.alfrescoJsApi);
 
     const filterType = {
         folder: 'Folder',

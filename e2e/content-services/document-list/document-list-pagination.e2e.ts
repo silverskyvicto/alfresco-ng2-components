@@ -62,16 +62,16 @@ describe('Document List - Pagination', function () {
     const secondSetNumber = 25;
     const folderTwoModel = new FolderModel({ 'name': 'folderTwo' });
     const folderThreeModel = new FolderModel({ 'name': 'folderThree' });
+    const uploadActions = new UploadActions(this.alfrescoJsApi);
 
     beforeAll(async (done) => {
         fileNames = Util.generateSequenceFiles(10, nrOfFiles + 9, pagination.base, pagination.extension);
         secondSetOfFiles = Util.generateSequenceFiles(10, secondSetNumber + 9, pagination.secondSetBase, pagination.extension);
 
-        const alfrescoJsApi = new AlfrescoApi({
+        this.alfrescoJsApi = new AlfrescoApi({
             provider: 'ECM',
             hostEcm: TestConfig.adf.url
         });
-        const uploadActions = new UploadActions(alfrescoJsApi);
         await this.alfrescoJsApi.login(TestConfig.adf.adminEmail, TestConfig.adf.adminPassword);
 
         await this.alfrescoJsApi.core.peopleApi.addPerson(acsUser);
