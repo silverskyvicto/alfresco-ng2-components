@@ -16,7 +16,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { AlfrescoApiService, LogService, FormValues, AppConfigService, FormOutcomeModel } from '@alfresco/adf-core';
+import { AlfrescoApiService, LogService, FormValues, AppConfigService, FormOutcomeModel, FormControlService } from '@alfresco/adf-core';
 import { throwError, Observable, from } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { TaskDetailsCloudModel } from '../../task/start-task/models/task-details-cloud.model';
@@ -33,7 +33,8 @@ export class FormCloudService {
     constructor(
         private apiService: AlfrescoApiService,
         private appConfigService: AppConfigService,
-        private logService: LogService
+        private logService: LogService,
+        private formControlService: FormControlService
     ) {}
 
     /**
@@ -229,7 +230,7 @@ export class FormCloudService {
      */
     parseForm(json: any, data?: TaskVariableCloud[], readOnly: boolean = false): FormCloud {
         if (json) {
-            const form = new FormCloud(json, data, readOnly, this);
+            const form = new FormCloud(json, data, readOnly, this.formControlService);
             if (!json.fields) {
                 form.outcomes = [
                     new FormOutcomeModel(<any> form, {
