@@ -54,7 +54,6 @@ export class FilePreviewPage {
 
     checkZoomInButton() {
         BrowserVisibility.waitUntilElementIsVisible(element(by.css(`div[id='viewer-zoom-in-button']`)));
-
     }
 
     checkZoomOutButton() {
@@ -131,21 +130,21 @@ export class FilePreviewPage {
     }
 
     clickZoomIn() {
-        const zoomInButton = element(by.css(`div[id='viewer-zoom-in-button']`));
+        const zoomInButton = element(by.css(`button[id='viewer-zoom-in-button']`));
 
         BrowserVisibility.waitUntilElementIsVisible(zoomInButton);
         zoomInButton.click();
     }
 
     clickZoomOut() {
-        const zoomOutButton = element(by.css(`div[id='viewer-zoom-out-button']`));
+        const zoomOutButton = element(by.css(`button[id='viewer-zoom-out-button']`));
 
         BrowserVisibility.waitUntilElementIsVisible(zoomOutButton);
         zoomOutButton.click();
     }
 
     clickActualSize() {
-        const actualSizeButton = element(by.css(`div[id='viewer-scale-page-button']`));
+        const actualSizeButton = element(by.css(`button[id='viewer-scale-page-button']`));
 
         BrowserVisibility.waitUntilElementIsVisible(actualSizeButton);
         actualSizeButton.click();
@@ -208,7 +207,7 @@ export class FilePreviewPage {
 
     actualSize() {
         const canvasLayer = element.all(by.css(`div[class='canvasWrapper'] > canvas`)).first();
-        const textLayer = element(by.css(`div[id*='pageContainer'] div[class='textLayer'] > div`));
+        const textLayer = element.all(by.css(`div[class='textLayer'] > div`)).first();
 
         BrowserVisibility.waitUntilElementIsVisible(canvasLayer);
         BrowserVisibility.waitUntilElementIsVisible(textLayer);
@@ -257,10 +256,9 @@ export class FilePreviewPage {
         });
     }
 
-    /*
     zoomOut() {
         const canvasLayer = element.all(by.css(`div[class='canvasWrapper'] > canvas`)).first();
-        const textLayer = element(by.css(`div[id*='pageContainer'] div[class='textLayer'] > div`));
+        const textLayer = element.all(by.css(`div[class='textLayer'] > div`)).first();
 
         BrowserVisibility.waitUntilElementIsVisible(canvasLayer);
         BrowserVisibility.waitUntilElementIsVisible(textLayer);
@@ -272,16 +270,10 @@ export class FilePreviewPage {
 
         this.checkCanvasWidth().then((width) => {
             actualWidth = width;
-            if (actualWidth && zoomedOutWidth) {
-                expect(zoomedOutWidth).toBeLessThan(actualWidth);
-            }
         });
 
         this.checkCanvasHeight().then((height) =>  {
             actualHeight = height;
-            if (actualHeight && zoomedOutHeight) {
-                expect(zoomedOutHeight).toBeLessThan(actualHeight);
-            }
         });
 
         this.clickZoomOut();
@@ -293,11 +285,11 @@ export class FilePreviewPage {
             }
         });
 
-        this.checkCanvasHeight().then(() => {
+        this.checkCanvasHeight().then((height) => {
+            zoomedOutHeight = height;
             if (actualHeight && zoomedOutHeight) {
                 expect(zoomedOutHeight).toBeLessThan(actualHeight);
             }
         });
     }
-    */
 }
