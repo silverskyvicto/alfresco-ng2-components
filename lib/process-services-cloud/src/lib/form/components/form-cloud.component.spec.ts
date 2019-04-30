@@ -20,7 +20,7 @@ import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Observable, of, throwError } from 'rxjs';
 import { ProcessServiceCloudTestingModule } from '../../testing/process-service-cloud.testing.module';
-import { FormFieldModel, FormFieldTypes, FormOutcomeEvent, FormOutcomeModel, LogService, WidgetVisibilityService, FormControlService } from '@alfresco/adf-core';
+import { FormFieldModel, FormFieldTypes, FormOutcomeEvent, FormOutcomeModel, LogService, WidgetVisibilityService, FormControlService, setupTestBed } from '@alfresco/adf-core';
 import { FormCloudService } from '../services/form-cloud.service';
 import { FormCloudComponent } from './form-cloud.component';
 import { FormCloud } from '../models/form-cloud.model';
