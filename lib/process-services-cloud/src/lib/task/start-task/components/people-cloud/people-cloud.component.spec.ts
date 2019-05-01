@@ -501,7 +501,7 @@ describe('PeopleCloudComponent', () => {
             });
         }));
 
-        it('should pre-select all preSelectUsers when mode=multiple', async(() => {
+        it('should pre-select all preSelectUsers when mode=multiple', (done) => {
             spyOn(component, 'searchUser').and.returnValue(Promise.resolve(mockPreselectedUsers));
             component.mode = 'multiple';
             fixture.detectChanges();
@@ -511,8 +511,9 @@ describe('PeopleCloudComponent', () => {
                 fixture.detectChanges();
                 const chips = fixture.debugElement.queryAll(By.css('mat-chip'));
                 expect(chips.length).toBe(2);
+                done();
             });
-        }));
+        });
 
         it('should emit removeUser when a selected user is removed if mode=multiple', async(() => {
             spyOn(component.removeUser, 'emit');
@@ -559,7 +560,7 @@ describe('PeopleCloudComponent', () => {
             });
         }));
 
-        it('should filter user by username if validate true', async(() => {
+        it('should filter user by username if validate true', (done) => {
             const findUserByUsernameSpy = spyOn(identityService, 'findUserByUsername').and.returnValue(of(mockUsers));
             component.mode = 'multiple';
             component.validate = true;
@@ -570,9 +571,10 @@ describe('PeopleCloudComponent', () => {
                     expect(findUserByUsernameSpy).toHaveBeenCalled();
                     expect(component.userExists(result[0])).toEqual(true);
                     expect(component.userExists(result[1])).toEqual(true);
+                    done();
                 });
             });
-        }));
+        });
 
         it('should filter user by email if validate true', async(() => {
             const findUserByEmailSpy = spyOn(identityService, 'findUserByEmail').and.returnValue(of(mockUsers));
