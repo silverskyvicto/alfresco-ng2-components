@@ -23,7 +23,6 @@ import moment = require('moment');
 import { NavigationBarPage } from '../pages/adf/navigationBarPage';
 import { LoginSSOPage, SettingsPage, AppListCloudPage, TaskHeaderCloudPage, TasksService } from '@alfresco/adf-testing';
 import { TasksCloudDemoPage } from '../pages/adf/demo-shell/process-services/tasksCloudDemoPage';
-import { TaskDetailsCloudDemoPage } from '../pages/adf/demo-shell/process-services/taskDetailsCloudDemoPage';
 import resources = require('../util/resources');
 
 describe('Task Header cloud component', () => {
@@ -41,7 +40,6 @@ describe('Task Header cloud component', () => {
     const navigationBarPage = new NavigationBarPage();
     const appListCloudComponent = new AppListCloudPage();
     const tasksCloudDemoPage = new TasksCloudDemoPage();
-    const taskDetailsCloudDemoPage = new TaskDetailsCloudDemoPage();
     let tasksService: TasksService;
 
     beforeAll(async (done) => {
