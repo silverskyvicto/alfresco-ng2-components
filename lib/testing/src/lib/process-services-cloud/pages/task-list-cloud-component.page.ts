@@ -78,6 +78,10 @@ export class TaskListCloudComponentPage {
         return this.dataTable.selectRow(column.name, taskName);
     }
 
+    selectRowById(taskName) {
+        return this.dataTable.selectRow(column.id, taskName);
+    }
+
     getRow(taskName) {
         return this.dataTable.getCellElementByValue(column.name, taskName);
     }
