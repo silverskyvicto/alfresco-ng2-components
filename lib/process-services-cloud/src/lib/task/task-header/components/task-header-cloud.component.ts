@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, EventEmitter, Output, OnDestroy } from '@angular/core';
 import {
     CardViewDateItemModel,
     CardViewItem,
@@ -29,13 +29,14 @@ import {
 import { TaskDetailsCloudModel, TaskStatusEnum } from '../../start-task/models/task-details-cloud.model';
 import { Router } from '@angular/router';
 import { TaskCloudService } from '../../services/task-cloud.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'adf-cloud-task-header',
     templateUrl: './task-header-cloud.component.html',
     styleUrls: ['./task-header-cloud.component.scss']
 })
-export class TaskHeaderCloudComponent implements OnInit {
+export class TaskHeaderCloudComponent implements OnInit, OnDestroy {
 
     /** (Required) The name of the application. */
     @Input()
@@ -58,6 +59,8 @@ export class TaskHeaderCloudComponent implements OnInit {
     inEdit: boolean = false;
     parentTaskName: string;
 
+    private subscriptions: Subscription[] = [];
+
     constructor(
         private taskCloudService: TaskCloudService,
         private translationService: TranslationService,
@@ -67,15 +70,15 @@ export class TaskHeaderCloudComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        if (this.appName && this.taskId) {
+        if ((this.appName || this.appName === '') && this.taskId) {
             this.loadTaskDetailsById(this.appName, this.taskId);
         }
 
-        this.cardViewUpdateService.itemUpdated$.subscribe(this.updateTaskDetails.bind(this));
+        this.subscriptions.push(this.cardViewUpdateService.itemUpdated$.subscribe(this.updateTaskDetails.bind(this)));
     }
 
     loadTaskDetailsById(appName: string, taskId: string): any {
-        this.taskCloudService.getTaskById(appName, taskId).subscribe(
+        this.subscriptions.push(this.taskCloudService.getTaskById(appName, taskId).subscribe(
             (taskDetails) => {
                 this.taskDetails = taskDetails;
                 if (this.taskDetails.parentTaskId) {
@@ -83,7 +86,7 @@ export class TaskHeaderCloudComponent implements OnInit {
                 } else {
                     this.refreshData();
                 }
-            });
+            }));
     }
 
     private initDefaultProperties() {
@@ -226,7 +229,7 @@ export class TaskHeaderCloudComponent implements OnInit {
     }
 
     isTaskValid() {
-        return this.appName && this.taskId;
+        return (this.appName || this.appName === '') && this.taskId;
     }
 
     isTaskAssigned() {
@@ -243,5 +246,10 @@ export class TaskHeaderCloudComponent implements OnInit {
 
     onCompletedTask(event: any) {
         this.goBack();
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.subscriptions = [];
     }
 }
